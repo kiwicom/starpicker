@@ -1,7 +1,9 @@
 import os
+import math
 import requests
 from redis import StrictRedis
 from textwrap import dedent
+from textblob import TextBlob
 
 R = StrictRedis.from_url(os.environ['REDIS_URL'])
 SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
@@ -50,9 +52,18 @@ class Review(object):
     def redis_key(self):
         return '{self.type}:{self.id}'.format(self=self)
 
+    @property
+    def sentiment(self):
+        blob = TextBlob(self.text)
+        if blob.detect_language() == 'en':
+            return math.round(blob.sentiment[0] * 2 + 3)
 
     def send_to_slack(self):
+        if self.rating is None:
+            self.rating = self.sentiment
+
         color_map = {1: 'danger', 2: 'warning', 3: 'warning', 5: 'good'}
+
         body = {
             'username': 'starpicker',
             'attachments': [
@@ -64,4 +75,5 @@ class Review(object):
                 }
             ]
         }
+
         requests.post(SLACK_WEBHOOK_URL, json=body)

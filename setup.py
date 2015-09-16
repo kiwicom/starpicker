@@ -17,6 +17,7 @@ setup(
         'beautifulsoup4<5',
         'redis<3',
         'requests<3',
+        'textblob<0.10',
     ],
     entry_points={'console_scripts': 'starpicker=starpicker.run:main'},
     classifiers=[
