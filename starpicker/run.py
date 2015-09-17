@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import itertools
 from bs4 import BeautifulSoup
@@ -70,7 +71,7 @@ def main():
         get_tweets: bool(TWITTER_SEARCH_KEYWORD),
     }
     while True:
-        all_reviews = itertools.chain(
+        all_reviews = itertools.chain.from_iterable(
             collector() for collector, enabled in collectors.items() if enabled
         )
         for review in all_reviews:

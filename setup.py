@@ -6,7 +6,7 @@ with io.open('README.md', encoding='utf-8') as f:
 
 setup(
     name='starpicker',
-    version='0.1.0',
+    version='0.1.2',
     url='https://github.com/skypicker/starpicker',
     author='Bence Nagy',
     author_email='bence@skypicker.com',
