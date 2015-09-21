@@ -11,7 +11,7 @@ SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
 class Review(object):
 
     SLACK_TEMPLATE = dedent('''
-        New {self.type}:
+        New {self.type} ():
 
         >>>{self.text}
     ''').strip()
@@ -21,7 +21,7 @@ class Review(object):
         self.type = review_type
         self.id = review_id
         self.text = text
-        self.rating = rating
+        self._rating = rating
         self.is_new = R.sadd('starpicker:seen_review_ids', self.redis_key) == 1
 
     @classmethod
@@ -52,15 +52,15 @@ class Review(object):
         return '{self.type}:{self.id}'.format(self=self)
 
     @property
-    def sentiment(self):
-        blob = TextBlob(self.text)
-        if blob.detect_language() == 'en':
-            return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
+    def rating(self):
+        if self._rating:
+            return self._rating
+        else:
+            blob = TextBlob(self.text)
+            if blob.detect_language() == 'en':
+                return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
 
     def send_to_slack(self):
-        if self.rating is None:
-            self.rating = self.sentiment
-
         color_map = {1: 'danger', 2: 'warning', 3: 'warning', 5: 'good'}
 
         body = {
