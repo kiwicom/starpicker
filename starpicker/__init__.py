@@ -1,5 +1,4 @@
 import os
-import math
 import requests
 from redis import StrictRedis
 from textwrap import dedent
@@ -56,7 +55,7 @@ class Review(object):
     def sentiment(self):
         blob = TextBlob(self.text)
         if blob.detect_language() == 'en':
-            return math.round(blob.sentiment[0] * 2 + 3)
+            return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
 
     def send_to_slack(self):
         if self.rating is None:
