@@ -5,7 +5,7 @@ import itertools
 from bs4 import BeautifulSoup
 from base64 import b64encode
 
-from . import Review
+from .reviews import TrustpilotReview, FacebookRatingReview, FacebookCommentReview, TweetReview
 
 TRUSTPILOT_PAGE_ID = os.getenv('TRUSTPILOT_PAGE_ID')
 
@@ -23,29 +23,29 @@ def get_trustpilot_reviews():
     for tag in soup.findAll('div', 'review'):
         if not tag.find('div', 'review-body'):
             continue
-        yield Review.from_trustpilot(tag)
+        yield TrustpilotReview(tag)
 
 
 def get_facebook_ratings():
     response = requests.get(
         'https://graph.facebook.com/v2.4/{0}/ratings'.format(FACEBOOK_PAGE_ID),
-        params={'access_token': FACEBOOK_ACCESS_TOKEN, 'fields': 'created_time,review_text,rating'}
+        params={'access_token': FACEBOOK_ACCESS_TOKEN, 'fields': 'open_graph_story,review_text,rating,reviewer'}
     )
     for rating in response.json()['data']:
         if 'review_text' not in rating:
             continue
-        yield Review.from_facebook_rating(rating)
+        yield FacebookRatingReview(rating)
 
 
 def get_facebook_comments():
     response = requests.get(
-        'https://graph.facebook.com/v2.4/{0}'.format(FACEBOOK_PAGE_ID),
-        params={'access_token': FACEBOOK_ACCESS_TOKEN, 'fields': 'feed{comments}'}
+        'https://graph.facebook.com/v2.4/{0}/feed'.format(FACEBOOK_PAGE_ID),
+        params={'access_token': FACEBOOK_ACCESS_TOKEN, 'fields': 'comments'}
     )
-    for comment in itertools.chain.from_iterable(post['comments']['data'] for post in response.json()['feed']['data'] if 'comments' in post):
+    for comment in itertools.chain.from_iterable(post['comments']['data'] for post in response.json()['data'] if 'comments' in post):
         if comment['from']['id'] == FACEBOOK_PAGE_ID:
             continue
-        yield Review.from_facebook_comment(comment)
+        yield FacebookCommentReview(comment)
 
 
 def get_tweets():
@@ -62,7 +62,7 @@ def get_tweets():
             headers={'Authorization': 'Bearer {0}'.format(bearer_token)},
         )
         for tweet in response.json()['statuses']:
-            yield Review.from_tweet(tweet, sentiment)
+            yield TweetReview(tweet, sentiment)
 
 
 def main():
@@ -73,12 +73,15 @@ def main():
         get_tweets: bool(TWITTER_SEARCH_KEYWORD),
     }
     while True:
-        all_reviews = itertools.chain.from_iterable(
-            collector() for collector, enabled in collectors.items() if enabled
-        )
-        for review in all_reviews:
-            if review.is_new:
-                review.send_to_slack()
+        try:
+            all_reviews = itertools.chain.from_iterable(
+                collector() for collector, enabled in collectors.items() if enabled
+            )
+            for review in all_reviews:
+                if review.is_new:
+                    review.send_to_slack()
+        except Exception as ex:
+            print(ex)
 
         time.sleep(os.getenv('CHECK_INTERVAL', 60))
 

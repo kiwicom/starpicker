@@ -29,7 +29,7 @@ class BaseReview(object):
 
     @property
     def redis_key(self):
-        return '{self.type}:{self.id}'.format(self=self)
+        return '{self.__class__.__name__}:{self.id}'.format(self=self)
 
     @property
     def author(self):
@@ -78,10 +78,9 @@ class BaseReview(object):
 
 class TrustpilotReview(BaseReview):
 
-    type = 'trustpilot.com review'
+    type = 'Trustpilot review'
 
-    @classmethod
-    def from_source(cls, tag):
+    def __init__(self, tag):
         body = '\n\n'.join(
             tag.strip()
             for tag in tag.find('div', 'review-body').contents
@@ -89,7 +88,7 @@ class TrustpilotReview(BaseReview):
         )
         rating = int(tag.find('meta', itemprop='ratingValue')['content'])
         author = tag.find('div', 'user-review-name').find('span', itemprop='name').text
-        return cls(tag['data-reviewmid'], body, rating, author)
+        return super(TrustpilotReview, self).__init__(tag['data-reviewmid'], body, rating, author)
 
     @property
     def url(self):
@@ -100,9 +99,10 @@ class FacebookRatingReview(BaseReview):
 
     type = 'Facebook review'
 
-    @classmethod
-    def from_source(cls, rating):
-        return cls(rating['open_graph_story']['id'], rating['review_text'], rating['rating'], rating['reviewer']['name'])
+    def __init__(self, rating):
+        super(FacebookRatingReview, self).__init__(
+            rating['open_graph_story']['id'], rating['review_text'], rating['rating'], rating['reviewer']['name']
+        )
 
     @property
     def url(self):
@@ -113,9 +113,10 @@ class FacebookCommentReview(BaseReview):
 
     type = 'Facebook comment'
 
-    @classmethod
-    def from_source(cls, comment):
-        return cls(comment['id'], comment['message'], comment['from']['name'])
+    def __init__(self, comment):
+        return super(FacebookCommentReview, self).__init__(
+            comment['id'], comment['message'], author=comment['from']['name']
+        )
 
     @property
     def url(self):
@@ -124,12 +125,13 @@ class FacebookCommentReview(BaseReview):
 
 class TweetReview(BaseReview):
 
+    sentiment_map = {':(': 1, '': None, ':)': 5}
     type = 'tweet'
 
-    @classmethod
-    def from_source(cls, tweet):
-        sentiment_map = {':(': 1, '': None, ':)': 5}
-        return cls(tweet['id'], tweet['text'], rating=sentiment_map[sentiment], author=tweet['user'])
+    def __init__(self, tweet, sentiment):
+        return super(TweetReview, self).__init__(
+            tweet['id'], tweet['text'], self.sentiment_map[sentiment], tweet['user']
+        )
 
     @property
     def url(self):
