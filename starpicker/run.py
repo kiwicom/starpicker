@@ -21,6 +21,8 @@ def get_trustpilot_reviews():
     response = requests.get('https://www.trustpilot.com/review/{0}'.format(TRUSTPILOT_PAGE_ID))
     soup = BeautifulSoup(response.text, 'html.parser')
     for tag in soup.findAll('div', 'review'):
+        if not tag.find('div', 'review-body'):
+            continue
         yield Review.from_trustpilot(tag)
 
 
