@@ -39,7 +39,7 @@ class BaseReview(object):
     def rating(self):
         if self._rating:
             return self._rating
-        else:
+        elif len(self.text) > 3:
             blob = TextBlob(self.text)
             if blob.detect_language() == 'en':
                 return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
