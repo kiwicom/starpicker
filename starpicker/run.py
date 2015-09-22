@@ -32,8 +32,6 @@ def get_facebook_ratings():
         params={'access_token': FACEBOOK_ACCESS_TOKEN, 'fields': 'open_graph_story,review_text,rating,reviewer'}
     )
     for rating in response.json()['data']:
-        if 'review_text' not in rating:
-            continue
         yield FacebookRatingReview(rating)
 
 

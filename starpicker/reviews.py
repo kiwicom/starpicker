@@ -101,7 +101,10 @@ class FacebookRatingReview(BaseReview):
 
     def __init__(self, rating):
         super(FacebookRatingReview, self).__init__(
-            rating['open_graph_story']['id'], rating['review_text'], rating['rating'], rating['reviewer']['name']
+            rating['open_graph_story']['id'],
+            rating.get('review_text', ''),
+            rating['rating'],
+            rating['reviewer']['name'],
         )
 
     @property
