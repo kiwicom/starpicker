@@ -16,6 +16,8 @@ TWITTER_APP_KEY = os.getenv('TWITTER_APP_KEY')
 TWITTER_APP_SECRET = os.getenv('TWITTER_APP_SECRET')
 TWITTER_SEARCH_KEYWORD = os.getenv('TWITTER_SEARCH_KEYWORD')
 
+DEADMANSSNITCH_URL = os.getenv('DEADMANSSNITCH_URL')
+
 
 def get_trustpilot_reviews():
     response = requests.get('https://www.trustpilot.com/review/{0}'.format(TRUSTPILOT_PAGE_ID))
@@ -78,6 +80,8 @@ def main():
             for review in all_reviews:
                 if review.is_new:
                     review.send_to_slack()
+            if DEADMANSSNITCH_URL:
+                requests.get(DEADMANSSNITCH_URL)
         except Exception as ex:
             print(ex)
 
