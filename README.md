@@ -17,6 +17,8 @@ The following environment variables can be used for configuration:
  - `SLACK_WEBHOOK_URL` (required)
  - `REDIS_URL` (required)
  - `CHECK_INTERVAL` - in seconds
+ - `USE_EMOTICONS` - if set, starpicker will prepend messages with :trustpilot:,
+   :facebook:, or :twitter: based on the type of the review.
 
 And for setting up specific sources:
 
