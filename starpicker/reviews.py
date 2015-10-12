@@ -47,12 +47,16 @@ class BaseReview(object):
     def send_to_slack(self):
         color_map = {1: 'danger', 2: 'warning', 3: 'warning', 5: 'good'}
 
+        message = self.SLACK_TEMPLATE.format(self=self)
+        if os.getenv('USE_EMOTICONS'):
+            message = self.emoticon + ' ' + message
+
         body = {
             'username': 'starpicker',
             'attachments': [
                 {
-                    'fallback': self.SLACK_TEMPLATE.format(self=self),
-                    'pretext': self.SLACK_TEMPLATE.format(self=self).split('\n')[0],
+                    'fallback': message,
+                    'pretext': message.split('\n')[0],
                     'text': self.text,
                     'color': color_map.get(self.rating),
                     'title': '{self.type} #{self.id}'.format(self=self),
@@ -79,6 +83,7 @@ class BaseReview(object):
 class TrustpilotReview(BaseReview):
 
     type = 'Trustpilot review'
+    emoticon = ':trustpilot:'
 
     def __init__(self, tag):
         body = '\n\n'.join(
@@ -98,6 +103,7 @@ class TrustpilotReview(BaseReview):
 class FacebookRatingReview(BaseReview):
 
     type = 'Facebook review'
+    emoticon = ':facebook:'
 
     def __init__(self, rating):
         super(FacebookRatingReview, self).__init__(
@@ -115,6 +121,7 @@ class FacebookRatingReview(BaseReview):
 class FacebookCommentReview(BaseReview):
 
     type = 'Facebook comment'
+    emoticon = ':facebook:'
 
     def __init__(self, comment):
         return super(FacebookCommentReview, self).__init__(
@@ -130,6 +137,7 @@ class TweetReview(BaseReview):
 
     sentiment_map = {':(': 1, '': None, ':)': 5}
     type = 'tweet'
+    emoticon = ':twitter:'
 
     def __init__(self, tweet, sentiment):
         return super(TweetReview, self).__init__(
