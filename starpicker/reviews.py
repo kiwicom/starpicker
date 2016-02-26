@@ -1,11 +1,11 @@
-import os
 import requests
 from redis import StrictRedis
 from textwrap import dedent
 from textblob import TextBlob
 
-R = StrictRedis.from_url(os.environ['REDIS_URL'])
-SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
+from . import config
+
+R = StrictRedis.from_url(config.REDIS_URL)
 
 
 class BaseReview(object):
@@ -17,7 +17,6 @@ class BaseReview(object):
 
         >>>{self.text}
     ''').strip()
-
 
     def __init__(self, review_id, text, rating=None, author=None):
         assert self.type is not None
@@ -48,7 +47,7 @@ class BaseReview(object):
         color_map = {1: 'danger', 2: 'warning', 3: 'warning', 5: 'good'}
 
         message = self.SLACK_TEMPLATE.format(self=self)
-        if os.getenv('USE_EMOTICONS'):
+        if config.USE_EMOTICONS:
             message = self.emoticon + ' ' + message
 
         body = {
@@ -77,7 +76,7 @@ class BaseReview(object):
             ]
         }
 
-        requests.post(SLACK_WEBHOOK_URL, json=body)
+        requests.post(config.SLACK_WEBHOOK_URL, json=body)
 
 
 class TrustpilotReview(BaseReview):
@@ -93,7 +92,7 @@ class TrustpilotReview(BaseReview):
         )
         rating = int(tag.find('meta', itemprop='ratingValue')['content'])
         author = tag.find('div', 'user-review-name').find('span', itemprop='name').text
-        return super(TrustpilotReview, self).__init__(tag['data-reviewmid'], body, rating, author)
+        super(TrustpilotReview, self).__init__(tag['data-reviewmid'], body, rating, author)
 
     @property
     def url(self):
@@ -124,7 +123,7 @@ class FacebookCommentReview(BaseReview):
     emoticon = ':facebook:'
 
     def __init__(self, comment):
-        return super(FacebookCommentReview, self).__init__(
+        super(FacebookCommentReview, self).__init__(
             comment['id'], comment['message'], author=comment['from']['name']
         )
 
@@ -139,9 +138,9 @@ class TweetReview(BaseReview):
     type = 'tweet'
     emoticon = ':twitter:'
 
-    def __init__(self, tweet, sentiment):
-        return super(TweetReview, self).__init__(
-            tweet['id'], tweet['text'], self.sentiment_map[sentiment], tweet['user']
+    def __init__(self, tweet, sentiment=None):
+        super(TweetReview, self).__init__(
+            tweet['id'], tweet['text'], self.sentiment_map.get(sentiment), tweet['user']
         )
 
     @property
