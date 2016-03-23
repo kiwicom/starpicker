@@ -114,7 +114,7 @@ class FacebookRatingReview(BaseReview):
 
     @property
     def url(self):
-        return 'https://www.facebook.com/{self.id}'.format(self=self)
+        return 'https://www.facebook.com/{self.id}:0'.format(self=self)
 
 
 class FacebookCommentReview(BaseReview):
