@@ -1,7 +1,7 @@
 import os
 
 REDIS_URL = os.environ['REDIS_URL']
-SLACK_WEBHOOK_URL = os.environ['SLACK_WEBHOOK_URL']
+SLACK_WEBHOOK_URLS = os.environ['SLACK_WEBHOOK_URL'].split(',')
 CHECK_INTERVAL = os.getenv('CHECK_INTERVAL', 60)
 CHECK_INTERVAL = os.getenv('CHECK_INTERVAL', 60)
 USE_EMOTICONS = os.getenv('USE_EMOTICONS', False)

@@ -76,7 +76,8 @@ class BaseReview(object):
             ]
         }
 
-        requests.post(config.SLACK_WEBHOOK_URL, json=body)
+        for webhook_url in config.SLACK_WEBHOOK_URLS:
+            requests.post(webhook_url, json=body)
 
 
 class TrustpilotReview(BaseReview):
