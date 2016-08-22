@@ -24,7 +24,8 @@ And for setting up specific sources:
 
 ### trustpilot.com
 
- - `TRUSTPILOT_PAGE_ID`
+ - `TRUSTPILOT_BUSINESS_ID`
+ - `TRUSTPILOT_API_KEY`
 
 ### Facebook
 
