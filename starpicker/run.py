@@ -18,7 +18,7 @@ def main():
     while True:
         LOG.info('starting review collection')
         try:
-            for review in (review for collector in COLLECTORS for review in list(collector.run())[:2]):  # FIXME
+            for review in (review for collector in COLLECTORS for review in list(collector.run())):
                 if review.is_new:
                     review.send_to_slack()
             if config.DEADMANSSNITCH_URL:
