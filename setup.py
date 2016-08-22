@@ -11,6 +11,7 @@ setup(
     author='Bence Nagy',
     author_email='bence@skypicker.com',
     download_url='https://github.com/skypicker/starpicker/releases',
+    description='A tool that periodically checks sites for feedback about an entity and posts the findings to Slack',
     long_description=README,
     packages=['starpicker'],
     install_requires=[
