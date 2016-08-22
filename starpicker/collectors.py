@@ -2,7 +2,6 @@ from base64 import b64encode
 
 import logging
 import requests
-from bs4 import BeautifulSoup
 from . import config, reviews
 
 LOG = logging.getLogger(__name__)
@@ -51,17 +50,14 @@ class BaseCollector(object):
 
 class TrustpilotReviewCollector(BaseCollector):
 
-    url = 'https://www.trustpilot.com/review/{config.TRUSTPILOT_PAGE_ID}'.format(config=config)
+    url = 'https://api.trustpilot.com/v1/business-units/{config.TRUSTPILOT_BUSINESS_ID}/reviews'.format(config=config)
+    params = {'apikey': config.TRUSTPILOT_API_KEY}
     review_class = reviews.TrustpilotReview
     enabled = bool(config.TRUSTPILOT_PAGE_ID)
 
     def parse(self, response, **kwargs):
-        soup = BeautifulSoup(response.text, 'html.parser')
-        for tag in soup.findAll('div', 'review'):
-            if not tag.find('div', 'review-body'):
-                continue
-            yield tag, {}
-
+        for review in response.json()['reviews']:
+            yield review, {}
 
 class FacebookRatingCollector(BaseCollector):
 

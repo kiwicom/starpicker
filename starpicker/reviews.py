@@ -84,19 +84,17 @@ class TrustpilotReview(BaseReview):
     type = 'Trustpilot review'
     emoticon = ':trustpilot:'
 
-    def __init__(self, tag):
-        body = '\n\n'.join(
-            tag.strip()
-            for tag in tag.find('div', 'review-body').contents
-            if isinstance(tag, str)
+    def __init__(self, review):
+        super(TrustpilotReview, self).__init__(
+            review['id'],
+            review['text'],
+            review['stars'],
+            review['consumer']['displayName'],
         )
-        rating = int(tag.find('meta', itemprop='ratingValue')['content'])
-        author = tag.find('div', 'user-review-name').find('span', itemprop='name').text
-        super(TrustpilotReview, self).__init__(tag['data-reviewmid'], body, rating, author)
 
-    @property
-    def url(self):
-        return 'https://www.trustpilot.com/review/skypicker.com/{self.id}'.format(self=self)
+        self.url = 'https://www.trustpilot.com/review/{company_id}/{self.id}'.format(
+            self=self, company_id=review['businessUnit']['identifyingName']
+        )
 
 
 class FacebookRatingReview(BaseReview):
