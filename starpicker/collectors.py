@@ -53,7 +53,7 @@ class TrustpilotReviewCollector(BaseCollector):
     url = 'https://api.trustpilot.com/v1/business-units/{config.TRUSTPILOT_BUSINESS_ID}/reviews'.format(config=config)
     params = {'apikey': config.TRUSTPILOT_API_KEY}
     review_class = reviews.TrustpilotReview
-    enabled = bool(config.TRUSTPILOT_PAGE_ID)
+    enabled = bool(config.TRUSTPILOT_API_KEY) and bool(config.TRUSTPILOT_BUSINESS_ID)
 
     def parse(self, response, **kwargs):
         for review in response.json()['reviews']:
