@@ -39,7 +39,7 @@ class BaseCollector(object):
 
     def fetch(self):
         LOG.debug('fetching in %s', self)
-        yield requests.get(self.url, params=self.params), {}
+        yield requests.get(self.url, params=self.params, timeout=5), {}
 
     def parse(self, response, **kwargs):
         raise NotImplementedError
