@@ -24,7 +24,7 @@ class BaseReview(object):
         self.text = text
         self._rating = rating
         self._author = author
-        self.is_new = R.sadd('starpicker:seen_review_ids', self.redis_key) == 1
+        self.is_new = R.sismember('starpicker:seen_review_ids', self.redis_key) == 0
 
     @property
     def redis_key(self):
@@ -77,7 +77,10 @@ class BaseReview(object):
         }
 
         for webhook_url in config.SLACK_WEBHOOK_URLS:
-            requests.post(webhook_url, json=body)
+            response = requests.post(webhook_url, json=body)
+            response.raise_for_status()
+
+        R.sadd('starpicker:seen_review_ids', self.redis_key)
 
 
 class TrustpilotReview(BaseReview):
