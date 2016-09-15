@@ -1,4 +1,6 @@
 import requests
+import logging
+import urllib.error
 from redis import StrictRedis
 from textwrap import dedent
 from textblob import TextBlob
@@ -6,6 +8,7 @@ from textblob import TextBlob
 from . import config
 
 R = StrictRedis.from_url(config.REDIS_URL)
+LOG = logging.getLogger(__name__)
 
 
 class BaseReview(object):
@@ -40,8 +43,13 @@ class BaseReview(object):
             return self._rating
         elif len(self.text) > 3:
             blob = TextBlob(self.text)
-            if blob.detect_language() == 'en':
-                return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
+          
+            try:
+                if blob.detect_language() == 'en':
+                    return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
+            except urllib.error.HTTPError:
+                LOG.warning("Rating detection failed: HTTPError")
+                return None
 
     def send_to_slack(self):
         color_map = {1: 'danger', 2: 'warning', 3: 'warning', 5: 'good'}
