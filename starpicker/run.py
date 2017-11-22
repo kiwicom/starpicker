@@ -22,7 +22,7 @@ def main():
                 if review.is_new:
                     review.send_to_slack()
             if config.DEADMANSSNITCH_URL:
-                requests.get(config.DEADMANSSNITCH_URL)
+                requests.get(config.DEADMANSSNITCH_URL, timeout=5)
         except:
             LOG.exception('unhandled error')
 

@@ -101,6 +101,7 @@ class TweetCollector(BaseCollector):
         return requests.post(
             'https://api.twitter.com/oauth2/token', data={'grant_type': 'client_credentials'},
             headers={'Authorization': 'Basic {0}'.format(self.auth_code.decode())},
+            timeout=5,
         ).json()['access_token']
 
     def fetch(self):
@@ -111,6 +112,7 @@ class TweetCollector(BaseCollector):
                 self.url,
                 params={'q': '{0} {1}'.format(config.TWITTER_SEARCH_KEYWORD, sentiment), 'result_type': 'recent'},
                 headers={'Authorization': 'Bearer {0}'.format(bearer_token)},
+                timeout=5,
             ), {'sentiment': sentiment}
 
     def parse(self, response, **kwargs):

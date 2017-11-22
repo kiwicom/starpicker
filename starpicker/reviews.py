@@ -43,7 +43,7 @@ class BaseReview(object):
             return self._rating
         elif len(self.text) > 3:
             blob = TextBlob(self.text)
-          
+
             try:
                 if blob.detect_language() == 'en':
                     return round(min(max(blob.sentiment.polarity, -0.5), 0.5) * 4 + 3)
@@ -85,7 +85,7 @@ class BaseReview(object):
         }
 
         for webhook_url in config.SLACK_WEBHOOK_URLS:
-            response = requests.post(webhook_url, json=body)
+            response = requests.post(webhook_url, json=body, timeout=5)
             response.raise_for_status()
 
         R.sadd('starpicker:seen_review_ids', self.redis_key)
