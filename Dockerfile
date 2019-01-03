@@ -1,8 +1,5 @@
-FROM python:3-slim
+FROM python:3.7-slim
 
-MAINTAINER Simone Esposito <simone@kiwi.com>
-
-RUN mkdir -p /app
 WORKDIR /app
 
 COPY requirements.txt /app/
