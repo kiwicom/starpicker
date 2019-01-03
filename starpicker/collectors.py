@@ -61,8 +61,8 @@ class TrustpilotReviewCollector(BaseCollector):
 
 class FacebookRatingCollector(BaseCollector):
 
-    url = 'https://graph.facebook.com/v2.4/{config.FACEBOOK_PAGE_ID}/ratings'.format(config=config)
-    params = {'fields': 'open_graph_story,review_text,rating,reviewer', 'access_token': config.FACEBOOK_ACCESS_TOKEN}
+    url = 'https://graph.facebook.com/v3.2/{config.FACEBOOK_PAGE_ID}/ratings'.format(config=config)
+    params = {'fields': 'open_graph_story,review_text,rating', 'access_token': config.FACEBOOK_ACCESS_TOKEN}
     review_class = reviews.FacebookRatingReview
     enabled = bool(config.FACEBOOK_PAGE_ID)
 
@@ -73,8 +73,8 @@ class FacebookRatingCollector(BaseCollector):
 
 class FacebookCommentCollector(BaseCollector):
 
-    url = 'https://graph.facebook.com/v2.4/{config.FACEBOOK_PAGE_ID}/feed'.format(config=config)
-    params = {'fields': 'comments', 'access_token': config.FACEBOOK_ACCESS_TOKEN}
+    url = 'https://graph.facebook.com/v3.2/{config.FACEBOOK_PAGE_ID}/feed'.format(config=config)
+    params = {'fields': 'comments{id,message,from,permalink_url}', 'access_token': config.FACEBOOK_ACCESS_TOKEN}
     review_class = reviews.FacebookCommentReview
     enabled = bool(config.FACEBOOK_PAGE_ID)
 

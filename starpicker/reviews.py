@@ -119,7 +119,7 @@ class FacebookRatingReview(BaseReview):
             rating['open_graph_story']['id'],
             rating.get('review_text', ''),
             rating['rating'],
-            rating['reviewer']['name'],
+            '_an unknown reviewer_',
         )
 
     @property
@@ -133,13 +133,16 @@ class FacebookCommentReview(BaseReview):
     emoticon = ':facebook:'
 
     def __init__(self, comment):
+        try:
+            author = comment['from']['id']
+        except KeyError:
+            author = '_an unknown commenter_'
+
         super(FacebookCommentReview, self).__init__(
-            comment['id'], comment['message'], author=comment['from']['name']
+            comment["id"], comment["message"], author=author
         )
 
-    @property
-    def url(self):
-        return 'https://www.facebook.com/{0}'.format(self.id.split('_')[0])
+        self.url = comment['permalink_url']
 
 
 class TweetReview(BaseReview):
