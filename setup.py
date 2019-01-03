@@ -15,10 +15,10 @@ setup(
     long_description=README,
     packages=['starpicker'],
     install_requires=[
-        'beautifulsoup4<5',
-        'redis<3',
-        'requests<3',
-        'textblob<0.10',
+        'beautifulsoup4',
+        'redis',
+        'requests',
+        'textblob',
     ],
     entry_points={'console_scripts': 'starpicker=starpicker.run:main'},
     classifiers=[
